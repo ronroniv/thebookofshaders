@@ -1,63 +1,61 @@
-## Uniforms
+## Uniform
 
-우리는 여태것 GPU가 병렬처리에 왜 유리한지, 또 GPU의 각 Thread가 한 이미지의 각 부분을 어떻게 다루는지 또한 살펴보았다. 병렬처리 Thread들이 서로에 대해 데이터를 공유할수 없더라도, CPU에서 인풋을 받을수 있다. 그리고 이 인풋들은 모든 Thread들에 있어서 일정(*uniform*)하고 *read only*이다. 즉, 읽을순 있어도 변경할수 없다는 뜻이다.
+여기까지 우리는 GPU가 대량의 병렬 쓰레드를 관리하는 법, 각각의 쓰레드가 전체 이미지의 일부분에 색 배정을 담당한다는 점을 알아보았다. 각 병렬 쓰레드는 다른 쓰레드들이 하는 작업을 알 수 없다해도 CPU에서 온 입력들을 쓰레드들에 보낼 수는 있다. 그래픽 카드의 아키텍처 때문에 이 입력들은 모든 쓰레드에 대해 동일('uniform', 유니폼)하고 '읽기 전용'이어야 한다. 즉, 각 쓰레드는 읽을 수 있지만 변경할 수는 없는  동일한 데이터를 받는다.
 
-이런 인풋들을 ```uniform```이라고 하고, ```float```, ```vec2```, ```vec3```, ```vec4```, ```mat2```, ```mat3```, ```mat4```, ```sampler2D```, ```samplerCube``` 등의 데이터 타입을 지원한다. 유니폼 값들은 보통 floating pont precision설정이 끝난후 선언된다.
+이런 입력을 `uniform`이라고 하고, 대부분 데이터 타입(`float`, `vec2`, `vec3`, `vec4`, `mat2`, `mat3`, `mat4`, `sampler2D`, `samplerCube`)을 지원한다. 유니폼 변수들은 대응하는 타입과 함께 셰이더 상단, 기본 실수 정밀도 설정 직후에 정의한다.
 
 ```glsl
 #ifdef GL_ES
 precision mediump float;
 #endif
 
-uniform vec2 u_resolution; // Canvas size (width,height)
-uniform vec2 u_mouse;      // mouse position in screen pixels
-uniform float u_time;	  // Time in seconds since load
+uniform vec2 u_resolution; // 캔버스 크기 (너비, 높이)
+uniform vec2 u_mouse;      // 마우스 위치 (화면 픽셀)
+uniform float u_time;	  // 로드 이후 지난 시간 (초)
 ```
 
-유니폼은 CPU와 GPU사이에 다리라고 봐도 좋을것이다. 유니폼 값들의 이름은 구현마다 다 다르지만 여기서는: ```u_time``` (쉐이더 연산이 시작된후부터의 초), ```u_resolution``` (쉐이더가 그려지고 있는 빌보드의 사이즈) and ```u_mouse``` (그려지는 빌보드내에서 마우스의 현재 픽셀 위치값) 등으로 나타내겠다. ```u_``` 를 변수앞에 붙혀서, 유니폼이라고 명시한다는 점도 유의하기 바란다. 더 많은 예제는 [ShaderToy.com](https://www.shadertoy.com/) 에서 찾아볼수 있지만, 변수이름이 약간 다르니 살펴보기 바란다:
+유니폼을 CPU와 GPU 사이에 놓인 작은 다리라고 생각해보자. 구현에 따라 이름은 다를 수 있지만 이 책에서는 항상 `u_time` (셰이더 시작된 이후 지난 초 단위 시간), `u_resolution` (셰이더 그려지는 영역 크기), `u_mouse` (영역 속의 픽셀 단위 마우스 위치)라고 쓰기로 한다. 유니폼 변수명 앞에는 `u_`를 붙여 이 변수가 유니폼임을 명시하는 관습을 따랐다. 하지만 유니폼에 온갖 이름을 쓰는 모습을 볼 수 있을 것인데, 가령 [ShaderToy.com](https://www.shadertoy.com/)에서는 동일한 유니폼들에 다음과 같은 이름을 쓰고 있다:
 
 ```glsl
-uniform vec3 iResolution;   // viewport resolution (in pixels)
-uniform vec4 iMouse;        // mouse pixel coords. xy: current, zw: click
-uniform float iTime;        // shader playback time (in seconds)
+uniform vec3 iResolution;   // 뷰포트 해상도 (픽셀)
+uniform vec4 iMouse;        // 마우스 위치 좌표. xy: 현재, zw: 클릭
+uniform float iTime;        // 셰이더 실행 시간 (초)
 ```
 
-거두철미하고, 유니폼이 실제로 구현되는 부분을 보자. 아래 코드에서 ```u_time``` - 쉐이더가 구동된후 초 - 를 sine 함수에 인자로 넣어, 빨간색값을 조절하고 있는것을 볼수 있다.
+설명은 이 정도로 하고, 유니폼이 실제로 쓰이는 모습을 보자. 다음 코드에서는 `u_time`(셰이더가 시작된 이후 초 단위로 지난 시간)을 사인 함수와 함께 사용해 영역 안에서 빨간색의 양이 변화하는 모습을 보여준다.
 
 <div class="codeAndCanvas" data="time.frag"></div>
 
-GLSL의 재미를 약간 맛볼수 있었다. GPU는 전에도 설명했듯이, hardware accelerated 각연산, 삼각함수연산, 지수함수연산등을 지원한다: [```sin()```](../glossary/?search=sin), [```cos()```](../glossary/?search=cos), [```tan()```](../glossary/?search=tan), [```asin()```](../glossary/?search=asin), [```acos()```](../glossary/?search=acos), [```atan()```](../glossary/?search=atan), [```pow()```](../glossary/?search=pow), [```exp()```](../glossary/?search=exp), [```log()```](../glossary/?search=log), [```sqrt()```](../glossary/?search=sqrt), [```abs()```](../glossary/?search=abs), [```sign()```](../glossary/?search=sign), [```floor()```](../glossary/?search=floor), [```ceil()```](../glossary/?search=ceil), [```fract()```](../glossary/?search=fract), [```mod()```](../glossary/?search=mod), [```min()```](../glossary/?search=min), [```max()```](../glossary/?search=max), [```clamp()```](../glossary/?search=clamp).
+코드에서 GLSL의 재미있는 점을 하나 더 볼 수 있다. GPU에서는 각, 삼각, 지수함수가 하드웨어로 고속처리된다. 이와 같은 함수로는 [`sin()`](../glossary/?search=sin), [`cos()`](../glossary/?search=cos), [`tan()`](../glossary/?search=tan), [`asin()`](../glossary/?search=asin), [`acos()`](../glossary/?search=acos), [`atan()`](../glossary/?search=atan), [`pow()`](../glossary/?search=pow), [`exp()`](../glossary/?search=exp), [`log()`](../glossary/?search=log), [`sqrt()`](../glossary/?search=sqrt), [`abs()`](../glossary/?search=abs), [`sign()`](../glossary/?search=sign), [`floor()`](../glossary/?search=floor), [`ceil()`](../glossary/?search=ceil), [`fract()`](../glossary/?search=fract), [`mod()`](../glossary/?search=mod), [`min()`](../glossary/?search=min), [`max()`](../glossary/?search=max), [`clamp()`](../glossary/?search=clamp)가 있다.
 
-다시 한번 위에 코드를 이용해 놀아보자.
+다시 한 번 위 코드를 가지고 놀아보자.
 
-* 색변화의 속도를 줄여보자.
+* 인지하기 어려운 수준으로 색 변화 빈도를 줄여보자.
 
-* 색이 거의 한개로 보일정도로 빠르게 속도를 높여보자.
+* 깜빡임 없이 한 가지 색상만 보일 정도로 속도를 높여보자.
 
-* RGB채널을 직접 조절하고, 속도를 바꾸어 개인만의 패턴을 만들어보자.
-
+* 세 개 채널(RGB)을 서로 다른 빈도로 바꾸어서 흥미로운 패턴을 만들어보자.
 
 ## gl_FragCoord
 
-비슷한 원리로, GLSL은 내장 아웃풋 값들을 가진다. ```vec4 gl_FragColor```, 또한 내장 인풋 값도 있다, *screen fragment*상에서 *pixel*의 위치를 가지고 있는 ```vec4 gl_FragCoord```. ```vec4 gl_FragCoord```로 각 쓰레드가 빌보드의 어느 부분을 작업하고 있는지 알수 있다. 그래서 이값은 ```uniform```값과는 조금다르다. 각 쓰레드마다 값이 다른 *varying*타입이기 때문이다.
-In the same way GLSL gives us a default output, ```vec4 gl_FragColor```, it also gives us a default input, ```vec4 gl_FragCoord```, which holds the screen coordinates of the *pixel* or *screen fragment* that the active thread is working on. With ```vec4 gl_FragCoord```, we know where a thread is working inside the billboard. In this case we don't call it ```uniform``` because it will be different from thread to thread, instead ```gl_FragCoord``` is called a *varying*.
+GLSL이 기본 출력으로 `vec4 gl_FragColor`를 주는 것처럼, 현재 활성화된 쓰레드가 담당하는 '픽셀', 즉 '프래그먼트'의 화면 좌표를 담은 기본 입력으로 `vec4 gl_FragCoord`가 존재한다. `vec4 gl_FragCoord`를 통해 어떤 쓰레드가 영역의 어디를 담당하고 있는지 알 수 있다. `gl_FragCoord`는 값이 쓰레드마다 다르기 때문에 `uniform` 변수라고 부르지 않고 가변('varying') 변수라고 부른다.
 
 <div class="codeAndCanvas" data="space.frag"></div>
 
-위 코드에서, 우리는 빌보드상의 각 픽셀의 위치를 *normalize*했다. 이렇게 함으로 인해서, 값은 ```0.0```에서, ```1.0```사이로 변환되고, 이값은 RED와 GREEN채널에 바로 대입할수 있게 된다.
+위 코드에서는 프래그먼트의 좌표를 영역의 해상도로 나누어 '정규화'했다. 이렇게 값은 `0.0`과 `1.0` 사이로 변환되어 X와 Y 값을 빨강과 녹색 채널에 매핑하기 쉬워진다.
 
-아쉽게도, 쉐이더 작업에서 우리는 많은 디버깅 혜택을 볼수가 없다. 그래서, 값을 색에 대입해 예측하고는 한다. 그래서 이 과정을 아래 그림과 같이, 유리병안에 배모형을 조각하는것과 비슷하다고도 한다. 다소 복잡할수 있지만, 그에 비례한 아름다운 결과는 결코 작지 않다.
+셰이더 세상에서는 변수들에 강렬한 색상을 대입해 파악해보는 법 외에 별달리 디버깅 수단이 많지 않다. 때로는 GLSL 코딩이 병 속에 배를 넣는 일과 비슷하게 느껴질 것이다. 아름답고 만족스러운 만큼 어렵다.
 
 ![](08.png)
 
-자 이번에는 여러가지 시도를 해보고 익혀보자.
+이제 여러가지 시도해보면서 지금까지 배운 것을 시험해보자.
 
-* ```(0.0,0.0)```이 어디 있는지 알수 있겠는가?
+* 위 캔버스에서 `(0.0, 0.0)`이 어디인지 말할 수 있는가?
 
-* 그렇다면 ```(1.0,0.0)```, ```(0.0,1.0)```, ```(0.5,0.5)```, ```(1.0,1.0)``` 들은?
+* `(1.0, 0.0)`, `(0.0, 1.0)`, `(0.5, 0.5)`, `(1.0, 1.0)`은 어디인가?
 
-* ```u_mouse``` 유니폼 변수를 사용해서, 각 픽셀의 노멀라이즈되지 않은 값을 알수 있겠는가? 또 이 값의 변화로 색또한 변화 시킬수 있을까?
+* `u_mouse`는 그 값들이 정규화된 값이 아닌 픽셀인데 어떻게 사용해야 할지 알 수 있겠는가? 이 변수를 사용해 색들을 움직이는 코드를 만들 수 있는가?
 
-* ```u_time```과, ```u_mouse```를 이용해, 색의 패턴을 재밌게 바꾸는 시도도 해보자.
+* `u_time`과 `u_mouse`를 이용해 흥미로운 색상 패턴을 만들어볼 수 있는가?
 
-몇번 해보다 보면, 이런 쉐이딩 기술을 어디에 적용할지 의문이 갈것이다. 다음챕터에서, 쉐이딩 기술을 이용하는 라이브러리들에 대해 알아볼것이다. three.js, Processing, openFrameworks와 같은 툴을 이용하여.
+이런 연습을 하고 나면 이런 셰이딩 기술을 시험해볼 수 있는 곳들이 또 있는지 궁금할 것이다. 다음 챕터에서는 three.js와 Processing, openFrameworks 같은 툴로 자기만의 셰이더를 만드는 방법을 알아본다.
