@@ -4,7 +4,7 @@
 
 위 두 이미지는 다른 방법으로 만들어졌다. 첫 번째는 반 고흐가 손수 물감 위에 물감을 덧그리는 방식으로 만들어졌다. 작업에 제법 시간이 걸렸다. 두 번째는 사이언 행렬, 마젠타 행렬, 노란색 행렬, 검은색 행렬의 픽셀을 조합하는 방식으로 몇 초만에 제작되었다. 중요한 차이는 두 번째 이미지가 순차적이지 않은 (즉, 차례차례가 아니라 모든 것을 동시에 처리하는) 방식으로 만들어졌다는 점이다.
 
-이 책은 디지털 이미지 생성을 새로운 단계로 이끄는 혁명적인 연산 기법인 *프래그먼트 셰이더*(fragment shader)를 다룬다. 그래픽스에 있어 구텐베르크 인쇄술과 같다고 생각할 수 있다.
+이 책은 디지털 이미지 생성을 새로운 단계로 이끄는 혁명적인 연산 기법인 '프래그먼트 셰이더'(fragment shader)를 다룬다. 그래픽스에 있어 구텐베르크 인쇄술과 같다고 생각할 수 있다.
 
 ![구텐베르크의 인쇄기](gutenpress.jpg)
 
@@ -24,11 +24,9 @@
 
 이 책은 GLSL 픽셀 셰이더 활용을 중심으로 한다. 먼저 셰이더가 무엇인지 알아보고, 그것으로 절차적인 형태와 패턴, 텍스처, 애니메이션을 만드는 방법을 배운다. 셰이딩 언어의 기초를 다지고 이미지 처리(이미지 연산, 행렬 회선, 블러, 색상 필터, 룩업 테이블, 기타 효과)와 시뮬레이션(콘웨이의 라이프 게임, 개리-스콧의 반응확산계, 물결, 보로노이 셀 등)처럼 유용한 사례에 적용해 본다. 책 막바지에는 레이 마칭을 바탕으로 한 고급 기술도 살펴본다.
 
-*각 챕터마다 상호작용할 수 있는 예시들이 마련되어 있다.* 여러분이 예시의 코드를 변경하면 그 변화가 즉시 보이게 된다. 이 책에서 다루는 개념들은 추상적이고 난해할 수 있는 만큼 이렇게 상호작용하는 예시들이 배움에 큰 도움이 된다고 본다. 개념이 적용되는 모습을 더 빨리 확인할 수록 배우는 속도도 빨라진다.
+각 챕터마다 상호작용할 수 있는 예시들이 마련되어 있다. 여러분이 예시의 코드를 변경하면 그 변화가 즉시 보이게 된다. 이 책에서 다루는 개념들은 추상적이고 난해할 수 있는 만큼 이렇게 상호작용하는 예시들이 배움에 큰 도움이 된다고 본다. 개념이 적용되는 모습을 더 빨리 확인할 수록 배우는 속도도 빨라진다.
 
 이 책이 다루지 않는 부분:
-
-* 이책은 openGL이나 webGL서적이 아니다. openGL/webGL은 GLSL이나 fragment shader보다 훨씬 더 큰 주제이다. 그런것들에 대해 좀더 싶히 공부하고 싶다면: [OpenGL Introduction](https://open.gl/introduction), [the 8th edition of the OpenGL Programming Guide](http://www.amazon.com/OpenGL-Programming-Guide-Official-Learning/dp/0321773039/ref=sr_1_1?s=books&ie=UTF8&qid=1424007417&sr=1-1&keywords=open+gl+programming+guide) (빨간책이라고도 알려진) 이나 [WebGL: Up and Running](http://www.amazon.com/WebGL-Up-Running-Tony-Parisi/dp/144932357X/ref=sr_1_4?s=books&ie=UTF8&qid=1425147254&sr=1-4&keywords=webgl) 등을 추천한다.
 
 * 이 책은 OpenGL이나 WebGL 책이 아니다. OpenGL과 WebGL은 GLSL이나 프래그먼트 셰이더보다 방대한 주제다. OpenGL과 WebGL에 대해 더 배우고 싶다면 [OpenGL Introduction](https://open.gl/introduction)이나 (빨간 책이라는 별명이 있는) [the 8th edition of the OpenGL Programming Guide](http://www.amazon.com/OpenGL-Programming-Guide-Official-Learning/dp/0321773039/ref=sr_1_1?s=books&ie=UTF8&qid=1424007417&sr=1-1&keywords=open+gl+programming+guide), [WebGL: Up and Running](http://www.amazon.com/WebGL-Up-Running-Tony-Parisi/dp/144932357X/ref=sr_1_4?s=books&ie=UTF8&qid=1425147254&sr=1-4&keywords=webgl)을 추천한다.
 
